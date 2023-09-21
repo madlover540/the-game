@@ -1,0 +1,46 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="game-lobby">
+    <h1>Welcome to Game Lobby</h1>
+
+    <!-- User Info and Actions -->
+    <div class="user-actions">
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}!</p>
+            <a href="{% url 'core:logout' %}">Logout</a>
+
+            <!-- Game Actions -->
+            <div class="game-actions">
+                <button onclick="location.href='{% url 'core:start-game' %}'">Start Game</button>
+                <button onclick="location.href='{% url 'core:join-game' %}'">Join Game</button>
+            </div>
+        {% else %}
+            <p>You need to be logged in to start or join a game.</p>
+            <a href="{% url 'core:login' %}" class="btn btn-primary">Login</a>
+            <span> | </span>
+            <a href="{% url 'core:register' %}" class="btn btn-secondary">Register</a>
+        {% endif %}
+    </div>
+
+    <!-- Game History and Highscores -->
+    <div class="game-info">
+        <a >My Game History</a>
+        <a >Global Top 100 Highscores</a>
+    </div>
+
+    {% if not user.is_authenticated %}
+    <h3>Available Games:</h3>
+    <div class="disabled-games">
+        {% for game in available_games %}
+            <div class="disabled-game">
+                <span>{{ game.name }}</span>
+                <button disabled>Join</button>
+            </div>
+        {% endfor %}
+    </div>
+    <p class="info-text">Please log in to join an available game.</p>
+    {% endif %}
+</div>
+{% endblock %}

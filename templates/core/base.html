@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lobby</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a href="{% url 'core:home' %}">Home</a>
+            <a href="{% url 'core:waiting-room' %}">Game Lobby</a>
+            <!-- ... other nav links ... -->
+        </div>
+        <div class="dropdown">
+        <button class="btn btn-dark dropdown-toggle" type="button" id="gamesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Available Games
+        </button>
+        <div class="dropdown-menu" aria-labelledby="gamesDropdown">
+            {% for game in available_games %}
+                <a class="dropdown-item" href="{% url 'core:join-game-id' game_id=game.id %}">{{ game }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+    <div class="row">
+        <!-- Left Sidebar: Available Games -->
+{#        <aside class="col-md-3 bg-light p-3">#}
+{#            <h5>Available Games</h5>#}
+{#            <ul class="list-unstyled">#}
+{#                {% for game in available_games %}#}
+{#                <li class="mb-2">#}
+{#                    <span>{{ game }}</span>#}
+{#                    <a href="{% url 'core:join-game-id' game_id=game.id %}" class="btn btn-sm btn-primary">Join</a>#}
+{#                </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        </aside>#}
+
+        <!-- Main Content -->
+        <main class="col-md-9">
+            {% block content %}
+            <!-- Content of the current page will be displayed here -->
+            {% endblock %}
+        </main>
+    </div>
+</div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2023 GameLobby Inc. All Rights Reserved.</p>
+            <a href="{% url 'core:about-us' %}">About Us</a>
+            <a href="{% url 'core:contact-us' %}">Contact</a>
+            <!-- ... other footer links ... -->
+        </div>
+    </div>
+</body>
+<!-- External Script -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Inline Script -->
+<script type="text/javascript">
+{% if messages %}
+    window.onload = function() {
+        {% for message in messages %}
+            Toastify({
+                text: "{{ message|safe }}",
+                duration: 3000, // Duration in ms (3000 ms = 3 seconds)
+                close: true,
+                gravity: "top", // top or bottom
+                position: "right", // left, center or right
+                backgroundColor: "{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}",
+                stopOnFocus: true,
+            }).showToast();
+        {% endfor %}
+    };
+{% endif %}
+</script>
+
+
+</html>

@@ -1,0 +1,30 @@
+{%  load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Landing</title>
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Welcome to the Game! {{ game_id }}</h1>
+    <p>Join the challenge and test your skills against other players.</p>
+
+    <button onclick="location.href='{% url 'core:waiting-room' %}'">Start Game</button>
+   <form method="post" action="{% url 'core:waiting-room' %}">
+    {% csrf_token %}
+    <label for="room_number">Room Number:</label>
+    <input type="text" id="room_number" name="room_number" placeholder="Enter room number">
+    <button onclick="location.href='{% url 'core:join-game' %}'">Join Game</button>
+</form>
+
+    <button onclick="location.href='{% url 'core:high-scores' %}'">View High Scores</button>
+</div>
+
+</body>
+</html>

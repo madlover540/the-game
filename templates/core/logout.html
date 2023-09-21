@@ -1,0 +1,7 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content %}
+<h2>Logout</h2>
+<p>You have been logged out successfully. Thank you for visiting!</p>
+<a href="{% url 'core:login' %}">Click here to login again</a>
+{% endblock %}

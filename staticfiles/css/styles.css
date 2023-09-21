@@ -1,0 +1,84 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-lobby {
+    text-align: center;
+}
+
+.user-actions, .game-actions, .game-info {
+    margin-bottom: 20px;
+}
+
+a, button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: darkblue;
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+a:hover, button:hover {
+    background-color: #0056b3;
+}
+
+button:focus {
+    outline: none;
+}
+/* Existing CSS */
+
+/* ... other styles ... */
+
+/* Navbar Styles */
+.navbar {
+    background-color: darkblue;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+    color: white;
+    padding: 10px 20px;
+    transition: color 0.3s;
+}
+
+.navbar a:hover {
+    color: #f0db75; /* Muted Gold on hover */
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #f4f4f4; /* Light Gray */
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.footer a {
+    color: darkblue;
+    padding: 5px 10px;
+    transition: color 0.3s;
+}
+
+.footer a:hover {
+    color: #f0db75; /* Muted Gold on hover */
+}
+
+.footer p {
+    color: #666; /* Dark Gray */
+    margin: 0;
+}

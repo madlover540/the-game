@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting Room </title>
+    <hidden> </hidden>
+    <link rel="stylesheet" href="{% static 'css/waiting.css' %}">
+</head>
+<body data-game-id="{{ game_id }}" data-player-type="{{ player_type }}">
+
+<div class="container">
+    <h2>Waiting Room</h2>
+    <p>Hello, {{ request.user.username }}! Waiting for an opponent...</p>
+    {% if player_type == 'creator' %}
+    <p>Creating Room Number {{ game_id }}  </p>
+    {% else %}
+    <p>Joining Room Number {{ game_id }}  </p>
+    {% endif %}
+    <img src="{% static 'images/Spinner-3.gif' %}" alt="Waiting animation" class="waiting-animation">
+</div>
+
+<script>
+    // You might want to use JavaScript to periodically check if a match has been found.
+    // If using WebSockets with Django Channels, you can update the player in real-time when a match is found.
+
+   // Connecting to the WebSocket
+const socket = new WebSocket('ws://' + window.location.host + '/ws/match/');
+let gameId = document.body.getAttribute('data-game-id');
+let playerType = document.body.getAttribute('data-player-type');
+
+
+socket.onopen = function(e) {
+    // Sending a message to Django to start looking for a match.
+    if (playerType === 'creator') {
+        socket.send(JSON.stringify({
+            'action': 'create_game',
+            'game_id': gameId,
+        }));
+    } else if (playerType === 'joiner') {
+        socket.send(JSON.stringify({
+            'action': 'start_game',
+            'game_id': gameId,
+        }));
+    }
+};
+
+socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+
+    if (data.action === 'wait_for_opponent' && playerType === 'creator') {
+        // If you're the creator, wait for an opponent to join
+        // Maybe display some UI message like "Waiting for another player to join..."
+    }
+    else if (data.action === 'start_game') {
+        // Redirect both the creator and joiner to the game room when a match is found
+        window.location.href = `/start-game/${data.game_id}`;
+    }
+};
+
+socket.onclose = function(e) {
+    console.error('WebSocket closed unexpectedly');
+};
+
+</script>
+
+</body>
+</html>

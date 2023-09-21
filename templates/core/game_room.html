@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Room</title>
+    <link rel="stylesheet" href="{% static 'css/game.css' %}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Game Room</h2>
+
+    <p>Player 1: {{ game.player1.username }}</p>
+    <p>Player 2: {{ game.player2.username }}</p>
+
+    <div class="game-area">
+        <input type="number" id="guessInput" placeholder="Enter your guess" disabled>
+        <button id="submitGuess" onclick="submitGuess()" disabled>Submit Guess</button>
+    </div>
+
+    <p id="message">Waiting for both players to join...</p>
+</div>
+
+<script>
+    let isMyTurn = false;  // This should be updated based on the server's response.
+    const messageElement = document.getElementById('message');
+
+    function enableInput() {
+        document.getElementById('guessInput').disabled = false;
+        document.getElementById('submitGuess').disabled = false;
+        messageElement.textContent = "Your turn! Make a guess.";
+    }
+
+    function disableInput() {
+        document.getElementById('guessInput').disabled = true;
+        document.getElementById('submitGuess').disabled = true;
+        messageElement.textContent = "Waiting for the other player's turn...";
+    }
+
+    function submitGuess() {
+        // Send the guess to the server and handle the response (e.g., using AJAX, WebSocket, etc.).
+        // For simplicity, this function does not have the actual implementation of sending the guess.
+        console.log("Guess submitted!");
+    }
+</script>
+
+</body>
+</html>
