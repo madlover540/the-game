@@ -16,13 +16,6 @@ class RegisterView(CreateView):
     template_name = 'core/register.html'
 
 
-# class CreateUserProfile(UpdateView):
-#     def get(self, request, *args, **kwargs):
-#         profile = UserProfile.objects.get_or_create(user=request.user)
-#         profile.is_online = True
-#         profile.save()
-#         reverse_lazy('core:home')
-
 
 class CustomLoginView(LoginView):
     template_name = 'core/login.html'
@@ -149,17 +142,15 @@ class JoinGameView(View):
         game_id = request.POST.get('game_id')
         try:
             game = get_object_or_404(Game, pk=game_id)
-            if game:
-                if game.player1 == request.user:
-                    messages.warning(request, "you can't join game created by you")
-                    return render(request, 'core/join_game.html')
-                if game.player2:
-                    messages.warning(request, "this game already started")
-                    return render(request, 'core/join_game.html')
+            is_current_player = request.user in [game.player1, game.player2]
+            if game.game_status != 'finished' and (is_current_player or game.player2 is None):
 
-                game.player2 = request.user
-                game.game_status = Game.GAME_STATUS.started
-                game.save()
+                if not game.player2:
+                    game.player2 = request.user
+                    game.game_status = Game.GAME_STATUS.started
+                    game.save()
+                if game.player2 == request.user:
+                    return render(request, 'core/waiting_room.html', {'game_id': game.id, 'player_type': 'joiner'})
                 return render(request, 'core/waiting_room.html', {'game_id': game.id, 'player_type': 'creator'})
             # Logic to join the game using game_id
             # If joined successfully, redirect to the game room or appropriate page

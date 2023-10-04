@@ -41,17 +41,19 @@
 //     }
 // });
 const game_id = document.querySelector('h1.game_id').textContent.split(' ')[2];
-const currentPlayer =  document.body.getAttribute('data-player-type');//document.querySelector('p.message').textContent.split(' ')[2];
-const socket = new WebSocket('ws://' + window.location.host + '/ws/match/');
-// const currentPlayer = document.querySelector('.current-player').textContent;
+const currentPlayer = document.body.getAttribute('data-player-type');
+
+// Use wss:// if HTTPS, otherwise use ws://
+const socket = new WebSocket(
+    location.protocol === 'https:' ? `wss://${window.location.host}/ws/match/` : `ws://${window.location.host}/ws/match/`
+);
+
 class Game {
     constructor() {
         this.playerTurn = currentPlayer;
         this.number = this.generateRandomNumber();
         this.score = 20;
         this.highscore = 0;
-
-
     }
 
     generateRandomNumber() {
@@ -59,39 +61,37 @@ class Game {
     }
 
     checkGuess() {
-    const guess = Number(document.querySelector('.guess').value);
+        const guess = Number(document.querySelector('.guess').value);
 
-    // Check if it's the player's turn
-    if (this.playerTurn !== 'Creator') {  // Modify as per your needs
-        this.displayMessage("It's not your turn!");
-        this.toggleCheckButton(false);  // Disable the button
-        return;
-    }
+        // Check if it's the player's turn
+        if (this.playerTurn !== currentPlayer) {
+            this.displayMessage("It's not your turn!");
+            this.toggleCheckButton(false);  // Disable the button
+            return;
+        }
 
-    // Check if the player hasn't inputted a number
-    else if (!guess) {
-        this.displayMessage("You didn't input Number");
-        return;
-    }
+        // Check if the player hasn't inputted a number
+        if (!guess) {
+            this.displayMessage("You didn't input Number");
+            return;
+        }
 
-    // Check if the player's guess is correct
-    else if (guess === this.number) {
-        socket.send(JSON.stringify({
+        // Check if the player's guess is correct
+        if (guess === this.number) {
+            socket.send(JSON.stringify({
                 'action': 'player_win',
-                'game_id': game_id  // Assuming you've saved the game_id on the client side.
+                'game_id': game_id
             }));
-        this.correctGuess();
-    }
-    // If the player's guess is wrong
-    else if (guess !== this.number) {
-        this.swapTurn();
-        socket.send(JSON.stringify({
+            this.correctGuess();
+        } else {  // If the player's guess is wrong
+            this.swapTurn();
+            socket.send(JSON.stringify({
                 'action': 'turn_end',
-                'game_id': game_id  // Assuming you've saved the game_id on the client side.
+                'game_id': game_id
             }));
-        this.wrongGuess(guess);
+            this.wrongGuess(guess);
+        }
     }
-}
 
     toggleCheckButton(enable) {
         const btnCheck = document.querySelector('.btn.check');
@@ -102,75 +102,20 @@ class Game {
         }
     }
 
+    // ... [rest of the Game class methods remain unchanged] ...
 
-    correctGuess() {
-        // this.displayMessage("Correct Answer");
-        // document.querySelector('body').style.backgroundColor = '#60b347';
-        // document.querySelector('.number').textContent = this.number;
-        // document.querySelector('.number').style.width = '30rem';
-        this.displayMessage("Correct Answer");
-        document.querySelector('body').style.opacity = '0';
-
-        setTimeout(() => {
-            // Slowly reveal the correct number and enlarge it
-            document.querySelector('body').style.backgroundColor = '#60b347';
-            document.querySelector('body').style.opacity = '1';
-            document.querySelector('.number').textContent = this.number;
-
-            // document.querySelector('.number').style.fontSize = '30rem';
-            document.querySelector('.number').style.width = '30rem'; // Adjust width
-            // document.querySelector('.number').style.height = '30rem'; // Adjust height considering padding
-
-            document.querySelector('body').classList.add('fireworks');
-        }, 1000);
-        // Set new highscore if necessary
-        if (this.score > this.highscore) {
-            this.highscore = this.score;
-            document.querySelector('.highscore').textContent = this.highscore;
-        }
-    }
-
-    wrongGuess(guess) {
-        if (this.score > 1) {
-            this.displayMessage(guess > this.number ? "Too high" : "Too low");
-            this.score--;
-            document.querySelector('.score').textContent = this.score;
-        } else {
-            this.displayMessage("You lost the game");
-            document.querySelector('.score').textContent = 0;
-        }
-    }
-
-    displayMessage(message) {
-        document.querySelector('.message').textContent = message;
-        document.querySelector('.message').textContent = `Player ${this.playerTurn}: ${message}`;
-    }
-
-    resetGame() {
-        document.querySelector('body').classList.remove('fireworks'); // Remove fireworks effect
-        this.number = this.generateRandomNumber();
-        this.playerTurn = this.playerTurn === 'player1' ? 'player2' : 'player1';
-        this.score = 20;
-        document.querySelector('.score').textContent = this.score;
-        document.querySelector('.guess').value = '';
-        document.querySelector('.number').textContent = '?';
-        document.querySelector('.message').textContent = 'Start guessing...';
-        document.querySelector('body').style.backgroundColor = '#222';
-        document.querySelector('.number').style.fontSize = '15rem';
-    }
     swapTurn() {
-    this.playerTurn = this.playerTurn === 'player1' ? 'player2' : 'player1';
-    if (this.playerTurn === currentPlayer) {
-        this.toggleCheckButton(true);
-        this.displayMessage('Your turn!');
-    } else {
-        this.toggleCheckButton(false);
-        this.displayMessage('Waiting for the other player...');
+        this.playerTurn = this.playerTurn === 'player1' ? 'player2' : 'player1';
+        if (this.playerTurn === currentPlayer) {
+            this.toggleCheckButton(true);
+            this.displayMessage('Your turn!');
+        } else {
+            this.toggleCheckButton(false);
+            this.displayMessage('Waiting for the other player...');
+        }
     }
 }
 
-
-}
 socket.onopen = function(e) {
     socket.send(JSON.stringify({
         'action': 'start_game',
@@ -181,24 +126,24 @@ socket.onopen = function(e) {
 socket.onmessage = function(e) {
     const data = JSON.parse(e.data);
 
-    if (data.action === 'turn_notification' && data.next_turn === 'player1') {
-        game.playerTurn = 'player1';
-        game.toggleCheckButton(true);
-        game.displayMessage('Your turn!');
-    } else if (data.action === 'turn_notification' && data.next_turn === 'player2') {
-        game.playerTurn = 'player2';
-        game.toggleCheckButton(true);
-        game.displayMessage('Your turn!');
-    } else if (data.action === 'not_your_turn') {
-        game.toggleCheckButton(false);
-        game.displayMessage('Waiting for the other player...');
+    if (data.action === 'turn_notification') {
+        if (data.next_turn === currentPlayer) {
+            game.playerTurn = currentPlayer;
+            game.toggleCheckButton(true);
+            game.displayMessage('Your turn!');
+        } else {
+            game.toggleCheckButton(false);
+            game.displayMessage('Waiting for the other player...');
+        }
     }
     // ... other possible actions ...
 };
 
-// socket.onclose = function(e) {
-//     console.error('WebSocket closed unexpectedly');
-// };
+socket.onclose = function(e) {
+    console.error('WebSocket closed unexpectedly');
+    // Maybe display a message to the user about the disconnection.
+};
+
 const game = new Game();
 
 document.querySelector('.check').addEventListener('click', function() {

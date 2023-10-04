@@ -37,7 +37,7 @@ socket.onopen = function(e) {
     // Sending a message to Django to start looking for a match.
     if (playerType === 'creator') {
         socket.send(JSON.stringify({
-            'action': 'create_game',
+            'action': 'waiting',
             'game_id': gameId,
         }));
     } else if (playerType === 'joiner') {
@@ -50,12 +50,13 @@ socket.onopen = function(e) {
 
 socket.onmessage = function(e) {
     const data = JSON.parse(e.data);
+    console.log('data_action', data.action)
 
     if (data.action === 'wait_for_opponent' && playerType === 'creator') {
         // If you're the creator, wait for an opponent to join
         // Maybe display some UI message like "Waiting for another player to join..."
     }
-    else if (data.action === 'start_game') {
+     if (data.action === 'start_game') {
         // Redirect both the creator and joiner to the game room when a match is found
         window.location.href = `/start-game/${data.game_id}`;
     }
